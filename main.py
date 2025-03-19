@@ -76,7 +76,7 @@ def main():
     download_options = {
         'format': 'bestvideo+bestaudio',
         'writesubtitles': False,
-        'writeautomaticsub': FZZalse,
+        'writeautomaticsub': False,
         'subtitleslangs': ['en'],
         'subtitlesformat': 'srt',
         'writethumbnail': False,
