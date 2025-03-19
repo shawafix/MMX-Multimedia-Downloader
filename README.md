@@ -11,3 +11,5 @@ Planned features:
 v1.6: small features added... 
 1. video resolution and audio quality selection 
 AND 2. added a windows installer to help casuals. still in cli. nothing major.
+
+GET IT FROM: https://github.com/shawafix/MMX-Multimedia-Downloader/releases/tag/ready
