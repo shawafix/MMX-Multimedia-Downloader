@@ -7,3 +7,7 @@ Planned features:
 2. Utilizing more of YouTube's features (chapters, etc.)
 3. Ensuring support for all features of sites other than YouTube.
 4. Multi-platform GUI version
+
+v1.6: small features added... 
+1. video resolution and audio quality selection 
+AND 2. added a windows installer to help casuals. still in cli. nothing major.

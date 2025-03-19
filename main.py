@@ -1,26 +1,9 @@
-import yt_dlp
+import os, sys, subprocess, yt_dlp, tkinter
 from tkinter import filedialog
-
-mmx_metadata = {  # local specifics
-    'download_path': '',
-    'playlist_path_modifier': '',  # will change to %(playlist_title)s if the link was found to be a playlist
-}
-
-download_options = {  # yt-dlp specifics
-    'format': 'bestvideo+bestaudio',
-    'writesubtitles': False,
-    'writeautomaticsub': False,
-    'subtitleslangs': ['en'],
-    'subtitlesformat': 'srt',
-    'writethumbnail': False,
-    'outtmpl': '',  # this will be set dynamically
-    'postprocessors': [],
-    'ignoreerrors': True,
-}
 
 def setPath():
     path = filedialog.askdirectory()
-    print(f"Download path set to: {path}")  # Debugging print
+    print(f"Download path set to: {path}")
     return path
 
 def checkIfPlaylist(url):
@@ -45,8 +28,8 @@ def checkIfAudio(myDict):
 
 def checkIfThumbnail(myDict):
     try:
-        isThumb = int(input("Enter 1 for thumbnail download, press ENTER button to skip:\t"))
-        if isThumb == 2:
+        isThumb = int(input("Enter 1 for thumbnail download, press ENTER to skip:\t"))
+        if isThumb == 1:
             myDict['writethumbnail'] = True
             myDict['postprocessors'].append({'key': 'EmbedThumbnail'})
     except ValueError:
@@ -65,30 +48,61 @@ def checkIfSubtitles(myDict):
         pass
     return myDict
 
-def main(ydl_dict):
-    print("Welcome to MMX Multimedia Downloader v1.5.1!\n-----------------------------------------\nReport bugs, contribute and support the project at: <will add link when set up>")
+def checkDownloadQuality(myDict):
+    resolution_map = {
+        '144': '144p', '144p': '144p',
+        '240': '240p', '240p': '240p',
+        '360': '360p', '360p': '360p',
+        '480': '480p', '480p': '480p',
+        '720': '720p', '720p': '720p', 'hd': '720p',
+        '1080': '1080p', '1080p': '1080p', 'fhd': '1080p', 'full hd': '1080p',
+        '1440': '1440p', '1440p': '1440p', 'qhd': '1440p', 'quad hd': '1440p',
+        '2560': '2160p', '2560p': '2160p', 'uhd': '2160p', '4k': '2160p',
+    }
+
+    print("\nAvailable Resolutions: 144, 240, 360, 480, 720 (hd), 1080 (fhd/full hd), 1440 (qhd/quad hd), 2560 (uhd/4k)")
+    resolution = input("Enter desired resolution (e.g., 720, 1080p, 4k, etc.): ").strip().lower()
+
+    if resolution in resolution_map:
+        myDict['format'] = f'bestvideo[height<={resolution_map[resolution]}]+bestaudio/best[height<={resolution_map[resolution]}]'
+        print(f"Download quality set to: {resolution_map[resolution]}")
+    else:
+        print("Invalid resolution. Using default format: bestvideo+bestaudio")
+    return myDict
+
+def main():
+    print("Welcome to MMX Multimedia Downloader v1.6!\n-----------------------------------------\nReport bugs, contribute and support the project at: https://github.com/shawafix/MMX-Multimedia-Downloader")
+
+    download_options = {
+        'format': 'bestvideo+bestaudio',
+        'writesubtitles': False,
+        'writeautomaticsub': FZZalse,
+        'subtitleslangs': ['en'],
+        'subtitlesformat': 'srt',
+        'writethumbnail': False,
+        'outtmpl': '',
+        'postprocessors': [],
+        'ignoreerrors': True,
+    }
+
     mode = input("Enter 1 for Advanced Download Options. Press ENTER to skip and proceed with Quick Download.\t")
-    url = input("Enter Video or Playlist link:")
+    url = input("Enter Video or Playlist link: ")
     path = setPath()
     playlist_modifier = checkIfPlaylist(url)
-    ydl_dict['outtmpl'] = f"{path}{playlist_modifier}/%(title)s.%(ext)s"
-    print(f"Output template: {ydl_dict['outtmpl']}")  # Debugging print
+    download_options['outtmpl'] = f"{path}{playlist_modifier}/%(title)s.%(ext)s"
+    print(f"Output template: {download_options['outtmpl']}")
 
-    checkIfAudio(ydl_dict)
+    checkIfAudio(download_options)
     if mode == '1':
-        checkIfThumbnail(ydl_dict)
-        checkIfSubtitles(ydl_dict)
+        checkIfThumbnail(download_options)
+        checkIfSubtitles(download_options)
+        checkDownloadQuality(download_options)
 
-    with yt_dlp.YoutubeDL(ydl_dict) as ydl:
+    with yt_dlp.YoutubeDL(download_options) as ydl:
         try:
             ydl.download([url])
         except yt_dlp.utils.DownloadError as e:
             print(f"Skipping undownloadable video: {e}")
 
-    return ydl_dict
-
-try:
-    main(download_options)
-except Exception as e:
-    print(f"An error occurred during the download process: {e}")
+main()
 
